@@ -7,3 +7,5 @@ obj
 *.nuspec
 *.nupkg
 nuget
+RichmondDay.Helpers.userprefs
+RichmondDay.Helpers/RichmondDay.Helpers.pidb
