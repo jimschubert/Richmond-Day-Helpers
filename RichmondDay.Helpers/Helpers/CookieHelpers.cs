@@ -35,21 +35,41 @@ namespace RichmondDay.Helpers {
             myCookie.Values.Add(CookieIdentifiers.Cart_Cookie_Key, cartId.ToString());
             HttpContext.Current.Response.Cookies[CookieIdentifiers.Cart_Cookie].Expires = DateTime.Now.AddDays(30);
         }
-
+        // TODO: merge this back into rd.helpers.
         public static void WriteCookie(string cookieIdentifier, string cookieKeyIdentifier, string cookieKeyValue) {
-            HttpCookie myCookie = new HttpCookie(cookieIdentifier);
-            HttpContext.Current.Response.Cookies.Remove(cookieIdentifier);
-            HttpContext.Current.Response.Cookies.Add(myCookie);
-            myCookie.Values.Add(cookieKeyIdentifier, cookieKeyValue.ToString());
+            WriteCookie(cookieIdentifier, cookieKeyIdentifier, cookieKeyValue, null);
         }
 
-        public static void WriteCookie(string cookieIdentifier, string cookieKeyIdentifier, string cookieKeyValue, DateTime expiry) {
-            HttpCookie myCookie = new HttpCookie(cookieIdentifier);
-            HttpContext.Current.Response.Cookies.Remove(cookieIdentifier);
-            HttpContext.Current.Response.Cookies.Add(myCookie);
-            myCookie.Values.Add(cookieKeyIdentifier, cookieKeyValue.ToString());
-            if(expiry != null)
-                HttpContext.Current.Response.Cookies[cookieIdentifier].Expires = expiry;
+        public static void WriteCookie(string cookieIdentifier, string cookieKeyIdentifier, string cookieKeyValue, DateTime? expiry) {
+            HttpCookie cookie = HttpContext.Current.Request.Cookies.Get(cookieIdentifier);
+            if (cookie != null) {
+                if (!string.IsNullOrEmpty(cookie.Values.Get(cookieKeyIdentifier)))
+                    cookie.Values.Remove(cookieKeyIdentifier);
+
+                cookie.Values.Add(cookieKeyIdentifier, cookieKeyValue);
+            } else {
+                cookie = new HttpCookie(cookieIdentifier);
+                HttpContext.Current.Response.Cookies.Remove(cookieIdentifier);
+                HttpContext.Current.Response.Cookies.Add(cookie);
+                cookie.Values.Add(cookieKeyIdentifier, cookieKeyValue.ToString());
+            }
+
+            if (expiry != null && expiry.HasValue)
+                HttpContext.Current.Response.Cookies[cookieIdentifier].Expires = expiry.Value;
+        }
+
+        public static object GetCookieValue(string cookieIdentifier, string cookieKeyIdentifier) {
+            HttpCookie cookie = HttpContext.Current.Request.Cookies.Get(cookieIdentifier);
+
+            if (cookie == null)
+                return 0;
+
+            try {
+                return cookie.Values[cookieKeyIdentifier];
+
+            } catch {
+                return null;
+            }
         }
 
         public static void DestroyCookie(string cookieIdentifier) {
@@ -57,18 +77,6 @@ namespace RichmondDay.Helpers {
             HttpContext.Current.Response.Cookies.Remove(cookieIdentifier);
             HttpContext.Current.Response.Cookies.Add(myCookie);
             HttpContext.Current.Response.Cookies[cookieIdentifier].Expires = DateTime.Now.AddDays(-15);
-        }
-
-        public static int GetCookieValue(string cookieIdentifier, string cookieKeyIdentifier) {
-            HttpCookie cookie = HttpContext.Current.Request.Cookies.Get(cookieIdentifier);
-
-            if (cookie == null)
-                return 0;
-
-            int cookieValue = 0;
-            int.TryParse(cookie.Values[cookieKeyIdentifier].ToString(), out cookieValue);
-
-            return cookieValue;
         }
 
         public static int GetUserId() {
