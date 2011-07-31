@@ -4,5 +4,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Richmond Day Helpers")]
 [assembly: AssemblyCompany("Richmond Day")]
 [assembly: AssemblyProduct("Richmond Day Helpers")]
-[assembly: AssemblyVersion("1.4")]
+[assembly: AssemblyVersion("1.4.1")]
 
